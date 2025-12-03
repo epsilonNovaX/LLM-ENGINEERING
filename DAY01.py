@@ -1,11 +1,11 @@
 import os
 import requests
 from dotenv import load_dotenv
-from IPython.display import Markdown, display
 from bs4 import BeautifulSoup
+from IPython.display import Markdown,display
 from openai import OpenAI
 load_dotenv(override=True)
-api_key = os.getenv('OPENAI_API_KEY')
+api_key=os.getenv("OPENAI_API_KEY")
 if not api_key:
     print("No API key was found - please head over to the troubleshooting notebook in this folder to identify & fix!")
 elif not api_key.startswith("sk-proj-"):
@@ -14,4 +14,17 @@ elif api_key.strip() != api_key:
     print("An API key was found, but it looks like it might have space or tab characters at the start or end - please remove them - see troubleshooting notebook")
 else:
     print("API key found and looks good so far!")
-openai_client = OpenAI()
+openai_client=OpenAI()
+headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"}
+class Website:
+     def __init__(self,url):
+          self.url=url
+          response=requests.get(url,headers=headers)
+          soup=BeautifulSoup(response.content,'html.parser')
+          self.title=soup.title.string if soup.title else "No title"
+          for irrelevant in soup.body(["script","style","img","input"]):
+            irrelevant.decompose()
+            self.text=soup.body.get_text(separator="\n",strip=True)
+ed=Website("https://edwarddonner.com")
+print(ed.title)
+print(ed.text)
