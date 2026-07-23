@@ -67,27 +67,41 @@ def handle_tool_call(msg):
     price_details=get_ticket_price(city)
     response={
         "role":"tool",
-        "cotent":price_details,
+        "content":price_details,
         "tool_call_id":tool_call.id
     }
+    return response
+
+# THIS IS TO ACCOUNT FOR MULTIPLE TOOL CALLS AS AN EXAMPLE SOMEONE CALLS FOR LONDON AND TOKYO 
+def handle_tool_calls(msg):
+    responses=[]
+    for tool_call in msg.tool_calls:
+        if tool_call.function.name=="get_ticket_price":
+             arguments=json.loads(tool_call.function.arguments)
+             city=arguments.get('destination')
+             price_details=get_ticket_price(city)
+             responses.append({ "role":"tool","content":price_details,"tool_call_id":tool_call.id})
+    return responses
+
 
 #THIS IS RELATED TO THE GRADIO CALL THAT IS PERFORMED AND THEN THE OPERATION TO SOLVE FOR THE TOOL CALL  
 
 def chat(msg,history):
     history=[{"role":h["role"],"content":h["content"]} for h in history]
     messages=[{"role":"system","content":sys_prompt}]+history+[{"role":"user","content":msg}]
-    response=openai.chat.completions.create(mdoel=MODEL,messages=messages,tools=tools)
+    response=openai.chat.completions.create(model=MODEL,messages=messages,tools=tools)
     # THIS IS THE PART THAT WILL KNOW SOLVE FOR THE TOOL CALLING 
     if response.choices[0].finish_reason=="tool_calls":
         message=response.choices[0].message
 
         #print(message) LOOK AT THE RELATED TEXT AT THE END FOR THIS 
         
-        tool_responses=handle_tool_call(message)
+        tool_responses=handle_tool_calls(message)
         messages.append(message)
         messages.extend(tool_responses)
         response=openai.chat.completions.create(model=MODEL,messages=messages)
-        return response.choices[0].message.content
+
+    return response.choices[0].message.content
     
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -129,6 +143,52 @@ a unique tool call ID
 
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+
+
+"""
+
+"""
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX API CALLS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+def get_ticket_price(destination):
+    # Your existing ticket prices
+    tickets_price = {
+        "london": "$799",
+        "berlin": "$299",
+        "tokyo": "$399"
+    }
+
+    # Coordinates required by the weather API
+    coordinates = {
+        "london": (51.5072, -0.1276),
+        "berlin": (52.5200, 13.4050),
+        "tokyo": (35.6762, 139.6503)
+    }
+
+    price = tickets_price.get(destination.lower(), "Unknown city")
+
+    if destination.lower() not in coordinates:
+        return f"Your ticket price for {destination} is {price}."
+
+    latitude, longitude = coordinates[destination.lower()]
+
+    response = requests.get(
+        "https://api.open-meteo.com/v1/forecast",
+        params={
+            "latitude": latitude,
+            "longitude": longitude,
+            "current": "temperature_2m"
+        }
+    )
+
+    data = response.json()
+
+    temperature = data["current"]["temperature_2m"]
+
+    return (
+        f"Your ticket price for {destination} is {price}. "
+        f"The current temperature there is {temperature}°C."
+    )
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
 """
