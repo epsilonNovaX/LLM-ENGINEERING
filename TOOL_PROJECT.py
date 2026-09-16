@@ -1,22 +1,21 @@
-#Basic imports
+#BASIC IMPORTS 
 import os
-from openai import OpenAI
 from dotenv import load_dotenv
-import gradio as gr
-#Basic setup 
+from openai import OpenAI
+#BASIC SETUP
+
 load_dotenv(override=True)
 os.getenv("OPENAI_API_KEY")
 openai=OpenAI()
-MODEL="gpt-5-mini"
-
 sys_prompt="""YOU ARE A HELPFUL ASSISTANT FOR AN AIRPLANE SERVICE KNOWN AS FLIGHT AI.
              MAKE THE RESPONSES SHORT IF YOU DON'T KNOW JUST SAY SO. NO MORE THAN 1 SENTENCE
              """
-# ADDITIONAL DATA
+MODEL="gpt-5-mini"
+
+# DEFINING THE FUNCTION THAT WILL BE CALLED
 
 tickets_price={"london":"$799","berlin":"$299","tokyo":"$399"}
 
-# FUNCTION
 
 def get_ticket_price(destination):
     print(f"Tool called for destination:{destination}")
@@ -24,18 +23,12 @@ def get_ticket_price(destination):
     return f"Your price for {destination} is {price}"
 
 
-
-
-
+# DEFINE THE JSON
 
 """
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-1. Required function to retrieve the supporting data
-2. The passable json
-3. To take care of the call 
-
-
-
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
+1. THE IMPORTS
+2. THE SETUP
+3. FUNCTION TO BE CALLED
+4. JSON TO BE PASSED
+5. HANDLING THE TOOL CALL 
 """
