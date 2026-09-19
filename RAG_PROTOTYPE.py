@@ -17,7 +17,14 @@ if openai_api_key:
     print(f"OpenAI API Key exists and begins {openai_api_key[:8]}")
 else:
     print("OpenAI API Key not set")
+SYSTEM_PREFIX = """
+You represent Insurellm, the Insurance Tech company.
+You are an expert in answering questions about Insurellm; its employees and its products.
+You are provided with additional context that might be relevant to the user's question.
+Give brief, accurate answers. If you don't know the answer, say so.
 
+Relevant context:
+"""
 # LOADING ALL THE EMPLOYEES PART INTO A DICTIONARY
 
 knowledge={}
@@ -36,6 +43,9 @@ for filename in filenames:
     name=Path(filename).stem
     with open(filename,"r",encoding="utf-8") as f:
         knowledge[name.lower()]=f.read()
+
+# print(knowledge.keys())
+
 
 """
 STEPS:

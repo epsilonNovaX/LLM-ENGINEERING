@@ -25,6 +25,25 @@ def get_ticket_price(destination):
 
 # DEFINE THE JSON
 
+price_function={
+    "name":"get_ticket_price",
+    "description":"The function that returns the value for passed destination",
+    "parameters":{
+        "type":"object",
+        "properties":{
+            "destination":{
+                "type":"string",
+                "description":"The place for which we called the function"
+            },
+        },
+        "required":["destination"],
+        "additionalProperties":False
+    }
+}
+#The passable JSON
+tools=[{"type":"function","function":price_function}]
+
+
 """
 1. THE IMPORTS
 2. THE SETUP
