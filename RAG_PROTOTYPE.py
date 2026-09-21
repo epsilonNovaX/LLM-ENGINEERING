@@ -9,6 +9,7 @@ from pathlib import Path # To get the file name and later split it to store in t
 import gradio as gr
 
 # BASIC SETUP
+openai=OpenAI()
 MODEL = "gpt-4.1-nano"
 db_name = "vector_db"
 load_dotenv(override=True)
@@ -46,9 +47,32 @@ for filename in filenames:
 
 # print(knowledge.keys())
 
+# Get what might be relevant in a text
 
+def get_relevant_context(message):
+    text = ''.join(ch for ch in message if ch.isalpha() or ch.isspace())
+    words=text.lower().split()
+    relevant_context=[]
+    for word in words:
+        if word in knowledge:
+            relevant_context.append(knowledge[word])
+    return relevant_context
+def additional_context(message):
+    relevant_context = get_relevant_context(message)
+    if not relevant_context:
+        result = "There is no additional context relevant to the user's question."
+    else:
+        result = "The following additional context might be relevant in answering the user's question:\n\n"
+        result += "\n\n".join(relevant_context)
+    return result
+def chat(message, history):
+    system_message = SYSTEM_PREFIX + additional_context(message)
+    messages = [{"role": "system", "content": system_message}] + history + [{"role": "user", "content": message}]
+    response = openai.chat.completions.create(model=MODEL, messages=messages)
+    return response.choices[0].message.content
+view = gr.ChatInterface(chat, type="messages").launch(inbrowser=True)
 """
 STEPS:
 1. GET ALL THE DATABASE IN A DICTIONARY
-
+2. 
 """

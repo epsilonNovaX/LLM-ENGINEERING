@@ -47,6 +47,29 @@ tokens=encoding.encode(entire_knowledge_base)
 token_count = len(tokens)
 print(f"Total tokens for {MODEL}: {token_count:,}")
 
+
+# NOW LOADING THE DOCUMENTS INTO LIST USING LANGCHAINS DIRECTORY LOADERS AND THEN SPILITING THE TEXT
+
+folders=glob.glob("knowledge-base/*")
+
+documents=[]
+
+for folder in folders:
+    doc_type=os.path.basename(folder)
+    loader=DirectoryLoader(folder,glob="**/*.md",loader_cls=TextLoader,loader_kwargs={'encoding':'utf-8'})
+    folder_docs=loader.load()
+    for doc in folder_docs:
+        doc.metadata["doc_type"]=doc_type
+        documents.append(doc)
+
+print(f"Loaded {len(documents)} documents")
+documents[1]
+
+text_splitters=RecursiveCharacterTextSplitter(chunks_size=100,chunk_overlap=200)
+chunks=text_splitters.split_documents(documents)
+
+print(f"Divided into {len(chunks)} chunks")
+print(f"First chunk:\n\n{chunks[0]}")
 """
 STEPS:
 1. BREAK INTO CHUNKS(TEXT SPLITTERS, LOADERS, GLOB)
